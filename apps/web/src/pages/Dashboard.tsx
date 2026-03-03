@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -30,48 +30,52 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@repo/ui'
-import { fetchApi } from '@/api/client'
-import { Formality } from '@/types'
+} from "@repo/ui";
+import { fetchApi } from "@/api/client";
+import { Formality } from "@/types/formality";
 
 const typeLabels: Record<string, string> = {
-  creation: 'Création',
-  modification: 'Modification',
-  'dépot des comptes': 'Dépôt des comptes',
-}
+  creation: "Création",
+  modification: "Modification",
+  "dépot des comptes": "Dépôt des comptes",
+};
 
 function formatDate(d: string) {
-  return new Intl.DateTimeFormat('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  }).format(new Date(d))
+  return new Intl.DateTimeFormat("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(d));
 }
 
 export function Dashboard() {
-  const navigate = useNavigate()
-  const { data: formalities, isLoading, error } = useQuery({
-    queryKey: ['formalities'],
-    queryFn: () => fetchApi<Formality[]>('/formalities'),
-  })
+  const navigate = useNavigate();
+  const {
+    data: formalities,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["formalities"],
+    queryFn: () => fetchApi<Formality[]>("/formalities"),
+  });
 
-  const [search, setSearch] = useState('')
-  const [status, setStatus] = useState('all')
-  const [type, setType] = useState('all')
-  const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState('10')
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("all");
+  const [type, setType] = useState("all");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState("10");
 
-  const [showCompany, setShowCompany] = useState(true)
-  const [showType, setShowType] = useState(true)
-  const [showOwner, setShowOwner] = useState(true)
-  const [showStatus, setShowStatus] = useState(true)
-  const [showCreation, setShowCreation] = useState(true)
-  const [showModification, setShowModification] = useState(true)
-  const [showAction, setShowAction] = useState(true)
+  const [showCompany, setShowCompany] = useState(true);
+  const [showType, setShowType] = useState(true);
+  const [showOwner, setShowOwner] = useState(true);
+  const [showStatus, setShowStatus] = useState(true);
+  const [showCreation, setShowCreation] = useState(true);
+  const [showModification, setShowModification] = useState(true);
+  const [showAction, setShowAction] = useState(true);
 
   useEffect(() => {
-    setPage(1)
-  }, [search, status, type, limit])
+    setPage(1);
+  }, [search, status, type, limit]);
 
   if (isLoading) {
     return (
@@ -79,7 +83,7 @@ export function Dashboard() {
         <h1 className="text-2xl font-semibold">Tableau de bord</h1>
         <p className="text-muted-foreground">Chargement…</p>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -88,62 +92,62 @@ export function Dashboard() {
         <h1 className="text-2xl font-semibold">Tableau de bord</h1>
         <p className="text-destructive">Erreur: {error.message}</p>
       </div>
-    )
+    );
   }
 
-  const allRows = formalities || []
+  const allRows = formalities || [];
 
-  const statuses: string[] = []
+  const statuses: string[] = [];
   for (let i = 0; i < allRows.length; i++) {
     if (statuses.indexOf(allRows[i].status) === -1) {
-      statuses.push(allRows[i].status)
+      statuses.push(allRows[i].status);
     }
   }
 
-  const types: string[] = []
+  const types: string[] = [];
   for (let i = 0; i < allRows.length; i++) {
     if (types.indexOf(allRows[i].type) === -1) {
-      types.push(allRows[i].type)
+      types.push(allRows[i].type);
     }
   }
 
-  const filtered = []
+  const filtered = [];
   for (let i = 0; i < allRows.length; i++) {
-    const row = allRows[i]
-    const q = search.toLowerCase().trim()
-    const byCompany = row.company.toLowerCase().includes(q)
+    const row = allRows[i];
+    const q = search.toLowerCase().trim();
+    const byCompany = row.company.toLowerCase().includes(q);
     const byOwner = `${row.owner.first_name} ${row.owner.last_name}`
       .toLowerCase()
-      .includes(q)
-    const byStatus = status === 'all' ? true : row.status === status
-    const byType = type === 'all' ? true : row.type === type
+      .includes(q);
+    const byStatus = status === "all" ? true : row.status === status;
+    const byType = type === "all" ? true : row.type === type;
     if ((byCompany || byOwner) && byStatus && byType) {
-      filtered.push(row)
+      filtered.push(row);
     }
   }
 
-  const pageSize = Number(limit) || 10
-  let totalPages = Math.ceil(filtered.length / pageSize)
-  if (totalPages < 1) totalPages = 1
+  const pageSize = Number(limit) || 10;
+  let totalPages = Math.ceil(filtered.length / pageSize);
+  if (totalPages < 1) totalPages = 1;
   if (page > totalPages) {
-    setPage(totalPages)
+    setPage(totalPages);
   }
 
-  const startIndex = (page - 1) * pageSize
-  const endIndex = startIndex + pageSize
-  const rows = filtered.slice(startIndex, endIndex)
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const rows = filtered.slice(startIndex, endIndex);
 
-  let visibleColumnCount = 0
-  if (showCompany) visibleColumnCount++
-  if (showType) visibleColumnCount++
-  if (showOwner) visibleColumnCount++
-  if (showStatus) visibleColumnCount++
-  if (showCreation) visibleColumnCount++
-  if (showModification) visibleColumnCount++
-  if (showAction) visibleColumnCount++
+  let visibleColumnCount = 0;
+  if (showCompany) visibleColumnCount++;
+  if (showType) visibleColumnCount++;
+  if (showOwner) visibleColumnCount++;
+  if (showStatus) visibleColumnCount++;
+  if (showCreation) visibleColumnCount++;
+  if (showModification) visibleColumnCount++;
+  if (showAction) visibleColumnCount++;
 
-  const shownStart = filtered.length === 0 ? 0 : (page - 1) * pageSize + 1
-  const shownEnd = Math.min(page * pageSize, filtered.length)
+  const shownStart = filtered.length === 0 ? 0 : (page - 1) * pageSize + 1;
+  const shownEnd = Math.min(page * pageSize, filtered.length);
 
   return (
     <div className="space-y-6">
@@ -319,9 +323,9 @@ export function Dashboard() {
 
                   {showStatus ? (
                     <TableCell>
-                      {row.status === 'Validé' ? (
+                      {row.status === "Validé" ? (
                         <Badge variant="default">{row.status}</Badge>
-                      ) : row.status === 'Refusé' ? (
+                      ) : row.status === "Refusé" ? (
                         <Badge variant="destructive">{row.status}</Badge>
                       ) : (
                         <Badge variant="outline">{row.status}</Badge>
@@ -346,7 +350,9 @@ export function Dashboard() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => navigate('/dashboard/formalities/' + row.uuid)}
+                        onClick={() =>
+                          navigate("/dashboard/formalities/" + row.uuid)
+                        }
                       >
                         Détail
                       </Button>
@@ -369,40 +375,40 @@ export function Dashboard() {
               <PaginationPrevious
                 href="#"
                 onClick={(e) => {
-                  e.preventDefault()
-                  if (page > 1) setPage(page - 1)
+                  e.preventDefault();
+                  if (page > 1) setPage(page - 1);
                 }}
-                className={page <= 1 ? 'pointer-events-none opacity-50' : ''}
+                className={page <= 1 ? "pointer-events-none opacity-50" : ""}
               />
             </PaginationItem>
 
             {Array.from({ length: totalPages }).map((_, i) => {
-              const p = i + 1
+              const p = i + 1;
               return (
                 <PaginationItem key={p}>
                   <PaginationLink
                     href="#"
                     isActive={page === p}
                     onClick={(e) => {
-                      e.preventDefault()
-                      setPage(p)
+                      e.preventDefault();
+                      setPage(p);
                     }}
                   >
                     {p}
                   </PaginationLink>
                 </PaginationItem>
-              )
+              );
             })}
 
             <PaginationItem>
               <PaginationNext
                 href="#"
                 onClick={(e) => {
-                  e.preventDefault()
-                  if (page < totalPages) setPage(page + 1)
+                  e.preventDefault();
+                  if (page < totalPages) setPage(page + 1);
                 }}
                 className={
-                  page >= totalPages ? 'pointer-events-none opacity-50' : ''
+                  page >= totalPages ? "pointer-events-none opacity-50" : ""
                 }
               />
             </PaginationItem>
@@ -410,5 +416,5 @@ export function Dashboard() {
         </Pagination>
       </div>
     </div>
-  )
+  );
 }

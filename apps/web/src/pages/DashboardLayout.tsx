@@ -1,11 +1,12 @@
-import { Outlet, NavLink } from 'react-router-dom'
-import { Separator } from '@repo/ui'
-import { LayoutDashboard, User, FileText } from 'lucide-react'
+import { Outlet, NavLink } from "react-router-dom";
+import { Separator } from "@repo/ui";
+import { LayoutDashboard, User, Users, FileText } from "lucide-react";
 
 const nav = [
-  { to: '/dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
-  { to: '/dashboard/account', label: 'Mon compte', icon: User },
-]
+  { to: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
+  { to: "/dashboard/users", label: "Utilisateurs", icon: Users },
+  { to: "/dashboard/account", label: "Mon compte", icon: User },
+];
 
 export function DashboardLayout() {
   return (
@@ -22,12 +23,12 @@ export function DashboardLayout() {
             <NavLink
               key={to}
               to={to}
-              end={to === '/dashboard'}
+              end={to === "/dashboard"}
               className={({ isActive }) =>
                 `flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`
               }
             >
@@ -50,5 +51,5 @@ export function DashboardLayout() {
         <Outlet />
       </main>
     </div>
-  )
+  );
 }

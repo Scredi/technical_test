@@ -1,26 +1,39 @@
-import { useQuery } from '@tanstack/react-query'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Avatar, AvatarFallback, Badge } from '@repo/ui'
-import { fetchApi } from '@/api/client'
-import type { User } from '@/types'
+import { useQuery } from "@tanstack/react-query";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Avatar,
+  AvatarFallback,
+  Badge,
+} from "@repo/ui";
+import { fetchApi } from "@/api/client";
+import type { User } from "@/types/user";
 
-const CURRENT_USER_UUID = 'u-1'
+const CURRENT_USER_UUID = "u-1";
 
 function formatDate(s: string | null) {
-  if (!s) return '—'
-  return new Intl.DateTimeFormat('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(s))
+  if (!s) return "—";
+  return new Intl.DateTimeFormat("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(s));
 }
 
 export function Account() {
-  const { data: user, isLoading, error } = useQuery({
-    queryKey: ['users', CURRENT_USER_UUID],
+  const {
+    data: user,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["users", CURRENT_USER_UUID],
     queryFn: () => fetchApi<User>(`/users/${CURRENT_USER_UUID}`),
-  })
+  });
 
   if (isLoading) {
     return (
@@ -28,19 +41,21 @@ export function Account() {
         <h1 className="text-2xl font-semibold">Mon compte</h1>
         <p className="text-muted-foreground">Chargement…</p>
       </div>
-    )
+    );
   }
 
   if (error || !user) {
     return (
       <div className="space-y-6">
         <h1 className="text-2xl font-semibold">Mon compte</h1>
-        <p className="text-destructive">Erreur: {error?.message ?? 'Utilisateur introuvable'}</p>
+        <p className="text-destructive">
+          Erreur: {error?.message ?? "Utilisateur introuvable"}
+        </p>
       </div>
-    )
+    );
   }
 
-  const initials = `${user.first_name[0]}${user.last_name[0]}`
+  const initials = `${user.first_name[0]}${user.last_name[0]}`;
 
   return (
     <div className="space-y-6 max-w-xl">
@@ -63,7 +78,7 @@ export function Account() {
               <CardDescription>{user.email}</CardDescription>
               <div className="flex gap-2 mt-2">
                 <Badge variant="secondary">{user.role}</Badge>
-                <Badge variant={user.enabled ? 'default' : 'destructive'}>
+                <Badge variant={user.enabled ? "default" : "destructive"}>
                   {user.status}
                 </Badge>
               </div>
@@ -72,19 +87,25 @@ export function Account() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-2">
-            <span className="text-sm font-medium text-muted-foreground">Téléphone</span>
-            <p className="text-sm">{user.phone ?? '—'}</p>
+            <span className="text-sm font-medium text-muted-foreground">
+              Téléphone
+            </span>
+            <p className="text-sm">{user.phone ?? "—"}</p>
           </div>
           <div className="grid gap-2">
-            <span className="text-sm font-medium text-muted-foreground">Dernière connexion</span>
+            <span className="text-sm font-medium text-muted-foreground">
+              Dernière connexion
+            </span>
             <p className="text-sm">{formatDate(user.last_login_on)}</p>
           </div>
           <div className="grid gap-2">
-            <span className="text-sm font-medium text-muted-foreground">Compte créé le</span>
+            <span className="text-sm font-medium text-muted-foreground">
+              Compte créé le
+            </span>
             <p className="text-sm">{formatDate(user.created_at)}</p>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
