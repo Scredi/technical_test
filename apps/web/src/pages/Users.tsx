@@ -121,7 +121,7 @@ export function Users() {
                   </TableCell>
                   <TableCell>
                     <Button
-                      variant="link"
+                      variant="ghost"
                       size="sm"
                       onClick={() => navigate(`/dashboard/users/${user.uuid}`)}
                     >

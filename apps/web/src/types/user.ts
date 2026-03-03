@@ -1,3 +1,6 @@
+import type { z } from "zod";
+import type { userSchema } from "@/schemas/user";
+
 export type UserRole =
   | "administrator"
   | "formalist_manager"
@@ -22,3 +25,5 @@ export interface User {
   accepted_terms_on: string | null;
   last_login_on: string | null;
 }
+
+export type UserFormValues = z.infer<typeof userSchema>;

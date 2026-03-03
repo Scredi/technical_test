@@ -1,24 +1,21 @@
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  Avatar,
-  AvatarFallback,
-  Badge,
-  Button,
+  Input,
   Form,
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
+  FormControl,
   FormMessage,
-  Input,
   Select,
   SelectContent,
   SelectItem,
@@ -26,12 +23,9 @@ import {
   SelectValue,
   useToast,
 } from "@repo/ui";
-import { fetchApi } from "@/api/client";
-import { useUpdateUser } from "@/hooks/useUser";
+import { useUser, useUpdateUser } from "@/hooks/useUser";
 import { userSchema } from "@/schemas/user";
-import type { User, UserRole, UserFormValues } from "@/types/user";
-
-const CURRENT_USER_UUID = "u-1";
+import type { UserRole, UserFormValues } from "@/types/user";
 
 const roleOptions: { value: UserRole; label: string }[] = [
   { value: "administrator", label: "Administrateur" },
@@ -42,31 +36,13 @@ const roleOptions: { value: UserRole; label: string }[] = [
   { value: "support", label: "Support" },
 ];
 
-function formatDate(s: string | null) {
-  if (!s) return "—";
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(s));
-}
-
-export function Account() {
+export function UserDetail() {
+  const { uuid } = useParams<{ uuid: string }>();
+  const navigate = useNavigate();
   const { toast } = useToast();
+  const { data: user, isLoading, error } = useUser(uuid ?? "");
+  const { mutate, isPending } = useUpdateUser(uuid ?? "");
   const [submitError, setSubmitError] = useState<string | null>(null);
-
-  const {
-    data: user,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["users", CURRENT_USER_UUID],
-    queryFn: () => fetchApi<User>(`/users/${CURRENT_USER_UUID}`),
-  });
-
-  const { mutate, isPending } = useUpdateUser(CURRENT_USER_UUID);
 
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
@@ -101,16 +77,28 @@ export function Account() {
             title: "Succès",
             description: "Informations sauvegardées avec succès",
           });
+          navigate("/dashboard/users");
         },
         onError: (err) => setSubmitError(err.message),
       },
     );
   }
 
+  if (!uuid) {
+    return (
+      <div className="space-y-6">
+        <p className="text-destructive">Identifiant manquant.</p>
+        <Button variant="outline" onClick={() => navigate("/dashboard/users")}>
+          Retour
+        </Button>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-semibold">Mon compte</h1>
+        <h1 className="text-2xl font-semibold">Édition utilisateur</h1>
         <p className="text-muted-foreground">Chargement…</p>
       </div>
     );
@@ -119,85 +107,37 @@ export function Account() {
   if (error || !user) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-semibold">Mon compte</h1>
+        <h1 className="text-2xl font-semibold">Édition utilisateur</h1>
         <p className="text-destructive">
           Erreur: {error?.message ?? "Utilisateur introuvable"}
         </p>
+        <Button variant="outline" onClick={() => navigate("/dashboard/users")}>
+          Retour
+        </Button>
       </div>
     );
   }
 
-  const initials = `${user.first_name[0] || ""}${user.last_name[0] || ""}`;
-
   return (
-    <div className="space-y-6 max-w-4xl">
-      <div>
-        <h1 className="text-2xl font-bold">Mon compte</h1>
-        <p className="text-muted-foreground mt-1">
-          Consultez et modifiez vos informations personnelles.
-        </p>
-      </div>
-
-      {/* Info Card */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col gap-6">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16">
-                <AvatarFallback className="text-xl bg-slate-100 text-slate-900 border">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <CardTitle className="text-xl">
-                  {user.first_name} {user.last_name}
-                </CardTitle>
-                <CardDescription>{user.email}</CardDescription>
-                <div className="flex gap-2 mt-2">
-                  <Badge variant="secondary">{user.role}</Badge>
-                  <Badge variant={user.enabled ? "default" : "destructive"}>
-                    {user.status}
-                  </Badge>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t">
-              <div className="grid gap-1">
-                <span className="text-sm font-medium text-muted-foreground">
-                  Téléphone
-                </span>
-                <p className="text-sm">{user.phone ?? "—"}</p>
-              </div>
-              <div className="grid gap-1">
-                <span className="text-sm font-medium text-muted-foreground">
-                  Dernière connexion
-                </span>
-                <p className="text-sm">{formatDate(user.last_login_on)}</p>
-              </div>
-              <div className="grid gap-1">
-                <span className="text-sm font-medium text-muted-foreground">
-                  Compte créé le
-                </span>
-                <p className="text-sm">{formatDate(user.created_at)}</p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Edit Form Card */}
+    <div className="space-y-6 max-w-2xl">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate("/dashboard/users")}
+      >
+        ← Retour
+      </Button>
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">Modifier mes informations</CardTitle>
+          <CardTitle>Editer un utilisateur</CardTitle>
           <CardDescription>
-            Les champs marqués d'un astérisque sont obligatoires.
+            Modifiez les informations principales du compte.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="first_name"
@@ -225,7 +165,7 @@ export function Account() {
                   )}
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="email"
@@ -280,11 +220,9 @@ export function Account() {
               {submitError && (
                 <p className="text-sm text-destructive">{submitError}</p>
               )}
-              <div className="flex justify-end pt-2">
+              <div className="flex justify-end">
                 <Button type="submit" disabled={isPending}>
-                  {isPending
-                    ? "Enregistrement…"
-                    : "Enregistrer les modifications"}
+                  {isPending ? "Enregistrement…" : "Enregistrer"}
                 </Button>
               </div>
             </form>

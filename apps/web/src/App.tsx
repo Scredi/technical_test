@@ -6,6 +6,8 @@ import { Dashboard } from "@/pages/Dashboard";
 import { Account } from "@/pages/Account";
 import { FormalityDetail } from "@/pages/FormalityDetail";
 import { Users } from "@/pages/Users";
+import { UserDetail } from "@/pages/UserDetail";
+import { Toaster } from "@repo/ui";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,12 +28,13 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="account" element={<Account />} />
             <Route path="users" element={<Users />} />
-            <Route path="users/:uuid" element={<div>TODO: User edit</div>} />
+            <Route path="users/:uuid" element={<UserDetail />} />
             <Route path="formalities/:uuid" element={<FormalityDetail />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
+      <Toaster />
     </QueryClientProvider>
   );
 }
