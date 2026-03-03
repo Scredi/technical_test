@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -23,17 +23,15 @@ import {
   SelectValue,
   useToast,
 } from "@repo/ui";
-import { useUser, useUpdateUser } from "@/hooks/useUser";
+import { useCreateUser } from "@/hooks/useUser";
 import { userSchema } from "@/schemas/user";
 import { roleOptions } from "@/constants/user";
 import type { UserFormValues } from "@/types/user";
 
-export function UserDetail() {
-  const { uuid } = useParams<{ uuid: string }>();
+export function UserCreate() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { data: user, isLoading, error } = useUser(uuid ?? "");
-  const { mutate, isPending } = useUpdateUser(uuid ?? "");
+  const { mutate, isPending } = useCreateUser();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const form = useForm<UserFormValues>({
@@ -47,18 +45,6 @@ export function UserDetail() {
     },
   });
 
-  useEffect(() => {
-    if (user) {
-      form.reset({
-        first_name: user.first_name,
-        last_name: user.last_name,
-        email: user.email,
-        phone: user.phone ?? "",
-        role: user.role,
-      });
-    }
-  }, [user, form]);
-
   function onSubmit(values: UserFormValues) {
     setSubmitError(null);
     mutate(
@@ -67,46 +53,12 @@ export function UserDetail() {
         onSuccess: () => {
           toast({
             title: "Succès",
-            description: "Informations sauvegardées avec succès",
+            description: "Utilisateur créé avec succès",
           });
           navigate("/dashboard/users");
         },
         onError: (err) => setSubmitError(err.message),
       },
-    );
-  }
-
-  if (!uuid) {
-    return (
-      <div className="space-y-6">
-        <p className="text-destructive">Identifiant manquant.</p>
-        <Button variant="outline" onClick={() => navigate("/dashboard/users")}>
-          Retour
-        </Button>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-semibold">Édition utilisateur</h1>
-        <p className="text-muted-foreground">Chargement…</p>
-      </div>
-    );
-  }
-
-  if (error || !user) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-semibold">Édition utilisateur</h1>
-        <p className="text-destructive">
-          Erreur: {error?.message ?? "Utilisateur introuvable"}
-        </p>
-        <Button variant="outline" onClick={() => navigate("/dashboard/users")}>
-          Retour
-        </Button>
-      </div>
     );
   }
 
@@ -121,9 +73,9 @@ export function UserDetail() {
       </Button>
       <Card>
         <CardHeader>
-          <CardTitle>Editer un utilisateur</CardTitle>
+          <CardTitle>Créer un utilisateur</CardTitle>
           <CardDescription>
-            Modifiez les informations principales du compte.
+            Ajoutez un nouveau compte utilisateur.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -137,7 +89,7 @@ export function UserDetail() {
                     <FormItem>
                       <FormLabel>Prénom *</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input autoFocus {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -212,9 +164,9 @@ export function UserDetail() {
               {submitError && (
                 <p className="text-sm text-destructive">{submitError}</p>
               )}
-              <div className="flex justify-end">
+              <div className="flex justify-end pt-2">
                 <Button type="submit" disabled={isPending}>
-                  {isPending ? "Enregistrement…" : "Enregistrer"}
+                  {isPending ? "Création…" : "Créer l'utilisateur"}
                 </Button>
               </div>
             </form>

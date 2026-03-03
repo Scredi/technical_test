@@ -7,6 +7,7 @@ import { Account } from "@/pages/Account";
 import { FormalityDetail } from "@/pages/FormalityDetail";
 import { Users } from "@/pages/Users";
 import { UserDetail } from "@/pages/UserDetail";
+import { UserCreate } from "@/pages/UserCreate";
 import { Toaster } from "@repo/ui";
 
 const queryClient = new QueryClient({
@@ -28,6 +29,7 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="account" element={<Account />} />
             <Route path="users" element={<Users />} />
+            <Route path="users/new" element={<UserCreate />} />
             <Route path="users/:uuid" element={<UserDetail />} />
             <Route path="formalities/:uuid" element={<FormalityDetail />} />
           </Route>

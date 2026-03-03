@@ -15,3 +15,10 @@ export function updateUser(uuid: string, data: Partial<User>) {
     body: data,
   });
 }
+
+export function createUser(data: Partial<User>) {
+  return fetchApi<User>("/users", {
+    method: "POST",
+    body: data,
+  });
+}

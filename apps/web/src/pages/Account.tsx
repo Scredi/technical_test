@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -29,18 +30,10 @@ import {
 import { fetchApi } from "@/api/client";
 import { useUpdateUser } from "@/hooks/useUser";
 import { userSchema } from "@/schemas/user";
-import type { User, UserRole, UserFormValues } from "@/types/user";
+import { roleOptions } from "@/constants/user";
+import type { User, UserFormValues } from "@/types/user";
 
 const CURRENT_USER_UUID = "u-1";
-
-const roleOptions: { value: UserRole; label: string }[] = [
-  { value: "administrator", label: "Administrateur" },
-  { value: "formalist_manager", label: "Responsable formaliste" },
-  { value: "formalist", label: "Formaliste" },
-  { value: "account_manager", label: "Gestionnaire de compte" },
-  { value: "customer", label: "Client" },
-  { value: "support", label: "Support" },
-];
 
 function formatDate(s: string | null) {
   if (!s) return "—";
@@ -55,6 +48,7 @@ function formatDate(s: string | null) {
 
 export function Account() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
@@ -101,6 +95,7 @@ export function Account() {
             title: "Succès",
             description: "Informations sauvegardées avec succès",
           });
+          navigate("/dashboard");
         },
         onError: (err) => setSubmitError(err.message),
       },

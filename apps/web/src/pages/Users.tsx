@@ -37,7 +37,14 @@ export function Users() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-semibold">Utilisateurs</h1>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl font-bold">Utilisateurs</h1>
+            <p className="text-muted-foreground mt-1">
+              Liste des comptes et édition individuelle.
+            </p>
+          </div>
+        </div>
         <p className="text-muted-foreground">Chargement…</p>
       </div>
     );
@@ -62,11 +69,16 @@ export function Users() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Utilisateurs</h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          Liste des comptes utilisateurs et edition individuelle
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold">Utilisateurs</h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            Liste des comptes utilisateurs et edition individuelle.
+          </p>
+        </div>
+        <Button onClick={() => navigate("/dashboard/users/new")}>
+          Créer un utilisateur
+        </Button>
       </div>
 
       <div className="rounded-md border border-border">
